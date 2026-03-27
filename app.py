@@ -10,7 +10,8 @@ from flask import (
     url_for,
 )
 
-from todos.utils import error_for_list_title
+from todos.utils import error_for_list_title, find_list_by_id
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 app.secret_key='secret1'
@@ -53,6 +54,25 @@ def create_list():
 
     flash("The title must be between 1 and 100 characters.", "error")
     return render_template('new_list.html', title=title)
+
+@app.route("/lists/<list_id>")
+def get_list(list_id):
+    lst = find_list_by_id(list_id, session['lists'])
+    if not lst:
+        raise NotFound(description="List not found")
+
+    return render_template('list.html', lst=lst)
+
+@app.route("/lists/<list_id>/todos", methods=["POST"])
+def create_todo(list_id):
+    todo_title = request.form['todo'].strip()
+
+
+    lst = find_list_by_id(list_id, session['lists'])
+    lst['todos'].append(todo_title)
+
+    return render_template('list.html', lst=lst)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)

@@ -6,6 +6,7 @@
       {% for lst in lists %}
         <li>
             <a>
+                <a href="{{ url_for('get_list', list_id=lst.id) }}">
                 <h2>{{ lst.title }}</h2>
                 <p>{{ lst.todos | length }}</p>
             </a>

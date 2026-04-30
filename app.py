@@ -1,5 +1,6 @@
 from uuid import uuid4
 from functools import wraps
+import os
 
 from flask import (
     flash,
@@ -182,41 +183,8 @@ def edit_list_title(lst, list_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5003)
+    if os.environ.get('FLASK_ENV') == 'production':
+        app.run(debug=False)
 
-'''
-session['lists'] is a list. This contains individual dictionaries called lst_1, lst_2 etc.
-each lst dict has a 'todos' key. Its value is LIST
-- In the list, is stored a dictionary: 'id', 'title', 'completed' keys
-
-Go into: session['lists']
-    -- list_id ---> 'todos'
-
-sessions['lists'] --- [ LIST
-    DICT {list_id: ['id': ..., 'title': ..., 'todos': [ LIST
-       DICT {todo_id: ['id': ..., 'title': ..., 'completed': BOOLEAN}, {todo_xyz: ....}
-       ]
-       ]
-        ----
-
-Delete todo:
-    - Find particular 'lst' dict by id
-        - go into 'todos'
-            - within this list, find todo dict by `todo_id`
-                - delete the dictionary from list.
-                    - Don't use an indexed based approach: rather remove element, after checking
-                    that `lst_id` and `todo_id` both exist (raise relevant 404 error if not)
-                    I.E. remove the actual TODO
-    - Redirect with a GET request to the relevant `lst_id`
-
-Complete All:
-    - Find particular 'lst' dictionary, by id
-    - Access the list at lst['todos']
-    - iterate through all todo dictionaries
-        - change todo_xyz['completed'] to True
-    - flash message
-    - register that session was modified
-    - redirect with GET request to that list
-
-
-'''
+    else:
+        app.run(debug=True, port=5003)
